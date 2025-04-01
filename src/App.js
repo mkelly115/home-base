@@ -3,7 +3,7 @@ import Joke from "./Joke";
 import Stories from "./Stories";
 
 function App() {
-  const [userQuery, setUserQuery] = useState("");
+  const [userQuery, setUserQuery] = useState('');
 
   const searchQuery = () => {
     window.open(`https://google.com/search?q=${userQuery}`, "_blank");
