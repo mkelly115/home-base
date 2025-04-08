@@ -1,5 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import uuid from "uuid/v4";
+
+const initialTasksState = {
+  tasks: [],
+  completedTasks: []
+};
+
+const TYPES = {
+  ADD_TASK: 'ADD_TASK',
+  COMPLETE_TASK: 'COMPLETED_TASK',
+  DELETE_TASK: 'DELETE_TASK'
+}
+
+const tasksReducer = (state, action) => {
+  console.log('state', state, 'action', action)
+
+  switch(action.type){
+
+    case TYPES.ADD_TASK:
+      return {
+        ...state,
+        tasks: [...state.tasks, action.task]
+      }
+      
+    case TYPES.COMPLETE_TASK:
+      const { completedTask } = action
+
+      return{
+        ...state,
+        completedTasks: [...state.completedTask, completedTask],
+        tasks: state.tasks.filter(t => t.id !== completedTask.id)
+      }
+
+    default: return state
+  }
+  
+}
 
 const TASKS_STORAGE_KEY = 'TASK_STORAGE_KEY'
 
@@ -24,6 +60,9 @@ export default function Tasks() {
   const [tasks, setTasks] = useState(storedTasks.tasks);
   const [completedTasks, setCompletedTasks] = useState(storedTasks.completedTasks);
 
+  const [state, dispatch] = useReducer(tasksReducer, initialTasksState)
+
+
   useEffect(() => {
     storeTasks({tasks, completedTasks});
   });
@@ -33,10 +72,15 @@ export default function Tasks() {
   };
 
   const addTask = () => {
+    dispatch({type: TYPES.ADD_TASK, task: { taskText, id: uuid() }})
+
     setTasks([...tasks, { taskText, id: uuid() }]);
   };
 
   const completeTask = (completedTask) => () => {
+
+    dispatch({type: TYPES.COMPLETE_TASK, completedTask})
+
     setCompletedTasks([...completedTasks, completedTask]);
     setTasks(tasks.filter((task) => task.id !== completedTask.id));
   };
@@ -44,8 +88,6 @@ export default function Tasks() {
 const deleteTask = task => () => {
     setCompletedTasks(completedTasks.filter(t => t.id !== task.id));
 }
-  console.log("tasks", tasks);
-  console.log('completed tasks', completedTasks);
 
   return (
     <div>
