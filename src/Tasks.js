@@ -24,13 +24,20 @@ const tasksReducer = (state, action) => {
       }
       
     case TYPES.COMPLETE_TASK:
-      const { completedTask } = action
+      const { completedTask } = action;
 
       return{
         ...state,
-        completedTasks: [...state.completedTask, completedTask],
+        completedTasks: [...state.completedTasks, completedTask],
         tasks: state.tasks.filter(t => t.id !== completedTask.id)
       }
+
+    case TYPES.DELETE_TASK: 
+
+    return{
+      ...state,
+      completedTasks: state.completedTasks.filter(t => t.id !== action)
+    }
 
     default: return state
   }
@@ -86,6 +93,9 @@ export default function Tasks() {
   };
 
 const deleteTask = task => () => {
+
+    dispatch({type: TYPES.DELETE_TASK, task});
+
     setCompletedTasks(completedTasks.filter(t => t.id !== task.id));
 }
 
